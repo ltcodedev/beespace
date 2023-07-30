@@ -20,11 +20,11 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.maximize()
-
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
+  
+  //mainWindow.maximize()
 
   mainWindow.on('maximize', () => {
     mainWindow.webContents.send('window-maximized')
