@@ -6,8 +6,8 @@ import icon from '../../resources/icon.png?asset'
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 750,
+    width: 1000,
+    height: 600,
     show: false,
     autoHideMenuBar: false,
     frame: false,
@@ -19,6 +19,8 @@ function createWindow(): void {
       webviewTag: true
     }
   })
+
+  mainWindow.maximize()
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
