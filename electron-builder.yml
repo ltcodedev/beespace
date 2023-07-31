@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: beespace
+appId: br.com.webcolmeia.beespace
+productName: Beespace
 directories:
   buildResources: build
 files:
@@ -13,7 +13,7 @@ asarUnpack:
   - resources/**
 afterSign: build/notarize.js
 win:
-  executableName: beespace
+  executableName: Beespace
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -33,8 +33,12 @@ linux:
     - AppImage
     - snap
     - deb
+    - flatpak
+    - tar.gz
+    - rpm
+    - pacman
   maintainer: electronjs.org
-  category: Utility
+  category: Internet
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
