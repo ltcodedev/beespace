@@ -15,19 +15,29 @@ O que me motivou a fazer esse navegador. Um dos motivos é que eu sempre tive um
 - [x] Botões de fechar, maxmizar e minimizar
 - [x] Botão de fechar e abrir a barra lateral
 - [x] Remover arredondamento ao maxmizar
+- [ ] Desenvolver uma pagina inicial para carregar ao abrir o navegador
+- [ ] Desenvolver uma pagina para quando for criado uma nova aba
+- [ ] Desenvolver uma barra lateria para que possa carregar mini aplicativo, como pro exemplo: Whatsapp, instagram, entre outros.
 - [ ] [Find in page](https://www.electronjs.org/docs/latest/api/webview-tag#webviewfindinpagetext-options)
 - [ ] Tabs
 - [ ] Suporte a varios perfis
+- [ ] Pagina de configurações
+- [ ] Tornar o browser customizavel pelo usuario
 - [ ] Auto maxmize on open application
 - [ ] Suporte a extenções do
-    - [Referencia 1](https://www.electronjs.org/pt/docs/latest/api/extensions)
-    - [Referencia 2](https://github.com/ramboxapp/electron-chrome-extensions)
+  - [Referencia 1](https://www.electronjs.org/pt/docs/latest/api/extensions)
+  - [Referencia 2](https://github.com/ramboxapp/electron-chrome-extensions)
+  - [ ] trazer extenção de adblock pre instalado
+  - [ ] trazer extemção de tradução pre instalada
+
+> Novas coisas serão tragas para lista de implementações conforme o tempo
 
 ## Recommended IDE Setup
 
 - [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
 ## Project Setup
+
 Gostaria de nos ajuar a desenvolver esse projeto? Beebrowser ele é um projeto de codigo aberto, sintase a vontada em querer nos ajudar.
 
 ### Install
@@ -61,9 +71,7 @@ $ npm run build:linux
 
 **Back-end:** Node, Express
 
-
 ## Autores
 
 - [@eulukasthyago](https://www.github.com/eulukasthyago)
 - [@webcolmeia](https://www.github.com/webcolmeia)
-

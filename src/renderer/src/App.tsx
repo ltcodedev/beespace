@@ -84,7 +84,7 @@ function App(): JSX.Element {
         <webview
           ref={browserRef}
           id="foo"
-          src="chrome://extension/"
+          src="https://duckduckgo.com/"
           className="flex-1 rounded-lg nodragable"
         ></webview>
       </div>
