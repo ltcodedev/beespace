@@ -1,36 +1,38 @@
 # Beespace Browser
 
-Beespace é um navegador baseado no navegador [Arc](https://arc.net/). Nos estamos desenvolvendo usando o electron, pois continua sendo baseado no chromium, porem sem um monte de sujeira. Muita coisa é manuel e refeita, porem acreditamos que compensa, pois podemos trazer um navegador limpo e totalmente personalizado
+Beespace is a browser based on the [Arc](https://arc.net/) browser. We are developing it using electron, as it is still based on chromium, but without a lot of clutter. A lot of things are manual and redone, but we believe it pays off, as we can bring a clean and fully customized browser.
 
 ### Motivation
 
-O que me motivou a fazer esse navegador. Um dos motivos é que eu sempre tive um sonho de desenvolver meu proprio navegador e depois de conhecer o projeto [Arc](https://arc.net/), queria muito experimentar-lo, pois ele me parecia ser muito interessante, mas infelimente tem uma fila de espera de convite para poder experimentar, e pelo que soube, é bem demorado para chegar o convite e como eu não queria espera, juntei o ultio ao agradavel, comecei a desenvolver meu proprio navegador usando as tecnologias que mais tinha conhecimento e de uma forma que eu consegueria manter sem ter a necessidade de aprender novas tecnologias ou linguagem de programação.
+What motivated me to make this browser. One of the reasons is that I always had a dream of developing my own browser and after getting to know the [Arc](https://arc.net/) project, I really wanted to try it out, as it seemed very interesting to me, but unfortunately there is a waiting list for an invitation to try it out, and from what I heard, it takes a long time for the invitation to arrive and since I didn't want to wait, I combined the useful with the pleasant, I started developing my own browser using the technologies that I had the most knowledge of and in a way that I could maintain without having to learn new technologies or programming languages.
 
 ## To-do list of things we want to bring to our browser
 
-- [x] Estilo parecido com o Arc browser
-- [x] Barra pra digitar url para navegação
-- [x] Carregar url apertando o entrer e semprecisar clicar em botões
-- [x] Url trocar conforme vai navegadnro (esperimental)
-- [x] Botões de fechar, maxmizar e minimizar
-- [x] Botão de fechar e abrir a barra lateral
-- [x] Remover arredondamento ao maxmizar
-- [ ] Desenvolver uma pagina inicial para carregar ao abrir o navegador
-- [ ] Desenvolver uma pagina para quando for criado uma nova aba
-- [ ] Desenvolver uma barra lateria para que possa carregar mini aplicativo, como pro exemplo: Whatsapp, instagram, entre outros.
+- [x] Style similar to the Arc browser
+- [x] Bar to type url for navigation
+- [x] Load url by pressing enter and without having to click on buttons
+- [x] Url changes as you navigate (experimental)
+- [x] Close, maximize and minimize buttons
+- [x] Button to close and open the sidebar
+- [x] Remove rounding when maximizing
+- [ ] Search bar and to type a url (Put the keyboard shortcut `CTRL + E` Electron and Vivaldi style)
+- [ ] Develop a home page to load when opening the browser
+- [ ] Develop a page for when a new tab is created
+- [ ] Develop a sidebar to load mini applications, such as for example: Whatsapp, Instagram, among others.
 - [ ] [Find in page](https://www.electronjs.org/docs/latest/api/webview-tag#webviewfindinpagetext-options)
 - [ ] Tabs
-- [ ] Suporte a varios perfis
-- [ ] Pagina de configurações
-- [ ] Tornar o browser customizavel pelo usuario
-- [ ] Auto maxmize on open application
-- [ ] Suporte a extenções do
-  - [Referencia 1](https://www.electronjs.org/pt/docs/latest/api/extensions)
-  - [Referencia 2](https://github.com/ramboxapp/electron-chrome-extensions)
-  - [ ] trazer extenção de adblock pre instalado
-  - [ ] trazer extemção de tradução pre instalada
+- [ ] Support for multiple windows
+- [ ] Support for multiple profiles
+- [ ] Settings page
+- [ ] Make the browser customizable by the user
+- [ ] Auto maximize on open application
+- [ ] Support for extensions of
+  - [Reference 1](https://www.electronjs.org/pt/docs/latest/api/extensions)
+  - [Reference 2](https://github.com/ramboxapp/electron-chrome-extensions)
+  - [ ] bring pre-installed adblock extension
+  - [ ] bring pre-installed translation extension
 
-> Novas coisas serão tragas para lista de implementações conforme o tempo
+> New things will be brought to the implementation list over time.
 
 ## Recommended IDE Setup
 
@@ -38,7 +40,7 @@ O que me motivou a fazer esse navegador. Um dos motivos é que eu sempre tive um
 
 ## Project Setup
 
-Gostaria de nos ajuar a desenvolver esse projeto? Beebrowser ele é um projeto de codigo aberto, sintase a vontada em querer nos ajudar.
+Would you like to help us develop this project? Beebrowser is an open source project, feel free to want to help us.
 
 ### Install
 
@@ -65,13 +67,13 @@ $ npm run build:mac
 $ npm run build:linux
 ```
 
-## Stack utilizada
+## Stack used.
 
 **Front-end:** React, TailwindCSS
 
 **Back-end:** Node, Electron
 
-## Autores
+## Authors
 
 - [@eulukasthyago](https://www.github.com/eulukasthyago)
 - [@webcolmeia](https://www.github.com/webcolmeia)
