@@ -67,9 +67,9 @@ $ npm run build:linux
 
 ## Stack utilizada
 
-**Front-end:** React, Redux, TailwindCSS
+**Front-end:** React, TailwindCSS
 
-**Back-end:** Node, Express
+**Back-end:** Node, Electron
 
 ## Autores
 
