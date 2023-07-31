@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 const { ipcRenderer } = window.electron
 
 function App(): JSX.Element {
-  const browserRef = useRef(null)
-  const urlRef = useRef(null)
+  const browserRef = useRef<Electron.WebviewTag>(null)
+  const urlRef = useRef<HTMLInputElement>(null)
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMaximized, setIsMaximized] = useState(false)
 
@@ -14,26 +14,23 @@ function App(): JSX.Element {
     const urlTestHttp = new RegExp(/(http(s?):\/\/)/gi)
     console.log(browserRef)
     console.log(urlRef)
-    if (urlTest.test(urlRef.current.value)) {
+    if (urlRef.current != null && urlTest.test(urlRef.current.value)) {
       if (urlTestHttp.test(urlRef.current?.value)) {
-        browserRef.current.loadURL(urlRef.current?.value)
+        if (browserRef.current != null) browserRef.current.loadURL(urlRef.current?.value)
       } else {
-        browserRef.current.loadURL(`http://${urlRef.current?.value}`)
+        if (browserRef.current != null)
+          browserRef.current.loadURL(`http://${urlRef.current?.value}`)
       }
     } else {
-      browserRef.current.loadURL(`https://duckduckgo.com/?q=${urlRef.current?.value}`)
+      if (browserRef.current != null)
+        browserRef.current.loadURL(
+          `https://duckduckgo.com/?q=${urlRef.current?.value}&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=h_&ia=web`
+        )
     }
-    console.log(urlTest.test(urlRef.current.value))
-    // setTimeout(() => {
-    //   urlRef.current.value = browserRef.current.src
-    //   console.log(browserRef.current.src)
-    // }, 1000)
   }
 
   const headleUpdateUrl = (event): void => {
-    urlRef.current.value = event.url
-    console.log('carregando', event.url)
-    console.log(browserRef.current.src)
+    if (urlRef.current != null) urlRef.current.value = event.url
   }
 
   const handleWindowMaxmized = (status): void => {
@@ -42,8 +39,10 @@ function App(): JSX.Element {
   }
 
   useEffect(() => {
-    browserRef.current.addEventListener('did-navigate-in-page', headleUpdateUrl)
-    browserRef.current.addEventListener('will-navigate', headleUpdateUrl)
+    if (browserRef.current != null)
+      browserRef.current.addEventListener('did-navigate-in-page', headleUpdateUrl)
+    if (browserRef.current != null)
+      browserRef.current.addEventListener('will-navigate', headleUpdateUrl)
     ipcRenderer.on('window-maximized', () => handleWindowMaxmized(true))
     ipcRenderer.on('window-unmaximized', () => handleWindowMaxmized(false))
   }, [])
