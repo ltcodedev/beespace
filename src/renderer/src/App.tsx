@@ -1,6 +1,6 @@
-import { ChevronsLeft, ChevronsRight } from 'react-feather'
+import { ChevronsLeft, ChevronsRight, Globe, Plus, X } from 'react-feather'
 import ActionWindow from './components/Action-window'
-import { createRef, useEffect, useRef, useState } from 'react'
+import { MutableRefObject, createRef, useEffect, useRef, useState } from 'react'
 const { ipcRenderer } = window.electron
 // const device_size = {
 //   width: window.screen.width,
@@ -10,19 +10,15 @@ const { ipcRenderer } = window.electron
 function App(): JSX.Element {
   const browserRef = useRef<Electron.WebviewTag>(null)
   const urlRef = useRef<HTMLInputElement>(null)
-  const tabsWebViewRef = useRef([])
+  const tabsWebViewRef = useRef<Array<MutableRefObject<Electron.WebviewTag>>>([])
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMaximized, setIsMaximized] = useState(false)
   const [tabs, setTabs] = useState([
     {
       id: 0,
       title: 'DockDockGo',
-      url: 'https://duckduckgo.com/?q=&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=h_&ia=web'
-    },
-    {
-      id: 1,
-      title: 'Google',
-      url: 'https://google.com.br'
+      url: 'https://duckduckgo.com/?q=&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=h_&ia=web',
+      favicon: ''
     }
   ])
   const [tabActive, setTabActive] = useState(0)
@@ -51,7 +47,12 @@ function App(): JSX.Element {
   }
 
   const headleUpdateUrl = (event): void => {
-    if (urlRef.current != null) urlRef.current.value = event.url
+    if (urlRef.current != null)
+      urlRef.current.value = tabsWebViewRef.current[tabActive].current.getURL()
+    setTabs((old) => {
+      old[tabActive].title = tabsWebViewRef.current[tabActive].current.getTitle()
+      return [...old]
+    })
   }
 
   const handleWindowMaxmized = (status): void => {
@@ -65,24 +66,32 @@ function App(): JSX.Element {
         {
           id: old.length,
           title: 'Pagina em branco' + (old.length + 1),
-          url: 'about:blank'
+          url: 'about:blank',
+          favicon: ''
         }
       ]
     })
   }
 
   useEffect(() => {
-    tabsWebViewRef.current.map((element) => {
-      if (element.current != null) {
-        element.current.addEventListener('did-navigate-in-page', headleUpdateUrl)
-        element.current.addEventListener('will-navigate', headleUpdateUrl)
-      }
-    })
-    console.log(tabsWebViewRef.current, tabActive)
+    ipcRenderer.on('window-maximized', () => handleWindowMaxmized(true))
+    ipcRenderer.on('window-unmaximized', () => handleWindowMaxmized(false))
   }, [])
 
   useEffect(() => {
-    console.log(tabsWebViewRef.current[tabs.length - 1])
+    console.log(tabsWebViewRef.current[0].current)
+    tabsWebViewRef.current.map((element, i) => {
+      if (element.current != null) {
+        element.current.addEventListener('did-navigate-in-page', headleUpdateUrl)
+        element.current.addEventListener('will-navigate', headleUpdateUrl)
+        element.current.addEventListener('page-favicon-updated', (fav): void => {
+          setTabs((old) => {
+            old[tabActive].favicon = fav.favicons[0]
+            return [...old]
+          })
+        })
+      }
+    })
     if (tabsWebViewRef.current[tabs.length - 1].current != null) {
       tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
         'did-navigate-in-page',
@@ -92,13 +101,13 @@ function App(): JSX.Element {
         'will-navigate',
         headleUpdateUrl
       )
+      tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
+        'did-finish-load',
+        headleUpdateUrl
+      )
+      tabsWebViewRef.current[tabs.length - 1].current.addEventListener('dom-ready', headleUpdateUrl)
     }
   }, [tabs])
-
-  useEffect(() => {
-    ipcRenderer.on('window-maximized', () => handleWindowMaxmized(true))
-    ipcRenderer.on('window-unmaximized', () => handleWindowMaxmized(false))
-  }, [])
 
   const handleSidebar = (): void => {
     setShowSidebar(!showSidebar)
@@ -128,15 +137,50 @@ function App(): JSX.Element {
             />
           </div>
         </div>
-        <div className="content_sidebar flex flex-1 flex-col items-start">
-          <button onClick={handleAddNewTab}>Add tab</button>
-          {tabs.map((tab, i) => {
-            return (
-              <button key={i} onClick={(): void => setTabActive(tab.id)}>
-                {tab.title}
-              </button>
-            )
-          })}
+        <div className="content_sidebar flex flex-1 flex-col items-start mr-2 min-w-[280px]">
+          <button onClick={handleAddNewTab} className="px-3 py-2 flex gap-2">
+            <Plus />
+            Add new tab
+          </button>
+          <div className="flex flex-col items-start gap-2 w-full overflow-x-auto bg-secondary-950 bg-opacity-5 p-2 rounded-lg">
+            {tabs.map((tab, i) => {
+              return (
+                <div key={i} className="flex gap-2 w-full">
+                  <button
+                    onClick={(): void => setTabActive(tab.id)}
+                    className={`${
+                      tabActive == tab.id
+                        ? 'bg-primary-50 bg-opacity-100 shadow-md'
+                        : 'bg-secondary-950 bg-opacity-30 text-primary-50 hover:text-secondary-950 hover:bg-primary-50 hover:bg-opacity-50'
+                    } px-3 py-2 rounded-lg flex gap-1 flex-1 items-center`}
+                  >
+                    <i>
+                      {tab.favicon != null && tab.favicon != '' ? (
+                        <img
+                          src={`${tab.favicon}`}
+                          className="min-w-[16px] min-h-[16px] max-w-[16px] max-h-[16px]"
+                          width="32px"
+                          height="32px"
+                        />
+                      ) : (
+                        <Globe size={19} />
+                      )}
+                    </i>
+                    <span className="text-left line-clamp-1">{tab.title}</span>
+                  </button>
+                  <button
+                    className={`${
+                      tabActive == tab.id
+                        ? 'bg-primary-50 bg-opacity-100'
+                        : 'bg-secondary-950 bg-opacity-30 text-primary-50 hover:text-secondary-950 hover:bg-primary-50 hover:bg-opacity-50'
+                    } px-3 py-2 rounded-lg`}
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
         </div>
         <div className="footer_sidebar"></div>
       </div>
