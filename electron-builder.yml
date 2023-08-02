@@ -33,7 +33,6 @@ linux:
     - AppImage
     - snap
     - deb
-    - flatpak
     - tar.gz
     - rpm
     - pacman

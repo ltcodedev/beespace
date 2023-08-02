@@ -1,41 +1,50 @@
 import { ChevronsLeft, ChevronsRight } from 'react-feather'
 import ActionWindow from './components/Action-window'
-import { useEffect, useRef, useState } from 'react'
+import { createRef, useEffect, useRef, useState } from 'react'
 const { ipcRenderer } = window.electron
-const device_size = {
-	width: window.screen.width,
-	height: window.screen.height
-}
+// const device_size = {
+//   width: window.screen.width,
+//   height: window.screen.height
+// }
 
 function App(): JSX.Element {
   const browserRef = useRef<Electron.WebviewTag>(null)
   const urlRef = useRef<HTMLInputElement>(null)
+  const tabsWebViewRef = useRef([])
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMaximized, setIsMaximized] = useState(false)
   const [tabs, setTabs] = useState([
-	{
-		id: 1,
-		title: 'DockDockGo',
-		url:''
-	}
-  ]);
-  const [tabActive, setTabActive] = useState(1)
+    {
+      id: 0,
+      title: 'DockDockGo',
+      url: 'https://duckduckgo.com/?q=&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=h_&ia=web'
+    },
+    {
+      id: 1,
+      title: 'Google',
+      url: 'https://google.com.br'
+    }
+  ])
+  const [tabActive, setTabActive] = useState(0)
 
-  const headleGoUrl = (): void => {
+  tabsWebViewRef.current = tabs.map((item, i) => tabsWebViewRef.current[i] ?? createRef())
+
+  const headleGoUrl = (id): void => {
     const urlTest = new RegExp(/(\..*)/gi)
     const urlTestHttp = new RegExp(/(http(s?):\/\/)/gi)
-    console.log(browserRef)
+    console.log(tabsWebViewRef)
     console.log(urlRef)
     if (urlRef.current != null && urlTest.test(urlRef.current.value)) {
       if (urlTestHttp.test(urlRef.current?.value)) {
-        if (browserRef.current != null) browserRef.current.loadURL(urlRef.current?.value)
+        if (tabsWebViewRef.current[id].current != null)
+          tabsWebViewRef.current[id].current.loadURL(urlRef.current?.value)
       } else {
-        if (browserRef.current != null)
-          browserRef.current.loadURL(`http://${urlRef.current?.value}`)
+        if (tabsWebViewRef.current[id].current != null)
+          tabsWebViewRef.current[id].current.loadURL(`http://${urlRef.current?.value}`)
       }
     } else {
-      if (browserRef.current != null)
-        browserRef.current.loadURL(
+      if (tabsWebViewRef.current[id] != null)
+        tabsWebViewRef.current[id].current.loadURL(
           `https://duckduckgo.com/?q=${urlRef.current?.value}&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=h_&ia=web`
         )
     }
@@ -49,23 +58,48 @@ function App(): JSX.Element {
     setIsMaximized(status)
   }
 
+  const handleAddNewTab = (): void => {
+    setTabs((old) => {
+      return [
+        ...old,
+        {
+          id: old.length,
+          title: 'Pagina em branco' + (old.length + 1),
+          url: 'about:blank'
+        }
+      ]
+    })
+  }
+
   useEffect(() => {
-    if (browserRef.current != null)
-      browserRef.current.addEventListener('did-navigate-in-page', headleUpdateUrl)
-    if (browserRef.current != null)
-      browserRef.current.addEventListener('will-navigate', headleUpdateUrl)
+    tabsWebViewRef.current.map((element) => {
+      if (element.current != null) {
+        element.current.addEventListener('did-navigate-in-page', headleUpdateUrl)
+        element.current.addEventListener('will-navigate', headleUpdateUrl)
+      }
+    })
+    console.log(tabsWebViewRef.current, tabActive)
+  }, [])
+
+  useEffect(() => {
+    console.log(tabsWebViewRef.current[tabs.length - 1])
+    if (tabsWebViewRef.current[tabs.length - 1].current != null) {
+      tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
+        'did-navigate-in-page',
+        headleUpdateUrl
+      )
+      tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
+        'will-navigate',
+        headleUpdateUrl
+      )
+    }
+  }, [tabs])
+
+  useEffect(() => {
     ipcRenderer.on('window-maximized', () => handleWindowMaxmized(true))
     ipcRenderer.on('window-unmaximized', () => handleWindowMaxmized(false))
-	
-	window.addEventListener('resize', () => {
-		setBrowser_size( () => {return {
-			width:	window.outerWidth,
-			height: window.outerHeight
-		}})
-		
-	});
   }, [])
-  
+
   const handleSidebar = (): void => {
     setShowSidebar(!showSidebar)
   }
@@ -89,21 +123,35 @@ function App(): JSX.Element {
               className="rounded-full p-2 px-4 text-secondary-600 bg-primary-50 bg-opacity-80 shadow-md w-full"
               ref={urlRef}
               onKeyDown={(e): void => {
-                e.key == 'Enter' && headleGoUrl()
+                e.key == 'Enter' && headleGoUrl(tabActive)
               }}
             />
           </div>
         </div>
-        <div className="content_sidebar flex flex-1"></div>
+        <div className="content_sidebar flex flex-1 flex-col items-start">
+          <button onClick={handleAddNewTab}>Add tab</button>
+          {tabs.map((tab, i) => {
+            return (
+              <button key={i} onClick={(): void => setTabActive(tab.id)}>
+                {tab.title}
+              </button>
+            )
+          })}
+        </div>
         <div className="footer_sidebar"></div>
       </div>
       <div className="basis-full bg-primary-50 m-2 ml-0 rounded-lg shadow-md flex overflow-hidden">
-        <webview
-          ref={browserRef}
-          id="foo"
-          src="https://duckduckgo.com/"
-          className="flex-1 rounded-lg nodragable"
-        ></webview>
+        {tabs.map((tab, i) => {
+          return (
+            <webview
+              key={tab.id}
+              ref={tabsWebViewRef.current[i]}
+              id={`tab${tab.id}`}
+              src={tab.url}
+              className={`flex-1 rounded-lg nodragable ${tabActive == tab.id ? 'flex' : 'hidden'}`}
+            ></webview>
+          )
+        })}
       </div>
       <button
         onClick={handleSidebar}
