@@ -1,4 +1,4 @@
-import { contextBridge } from 'electron'
+import { contextBridge, screen } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
@@ -19,4 +19,5 @@ if (process.contextIsolated) {
   window.electron = electronAPI
   // @ts-ignore (define in dts)
   window.api = api
+  window.device_size = screen.getPrimaryDisplay()
 }

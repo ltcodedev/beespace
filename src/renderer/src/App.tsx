@@ -2,12 +2,24 @@ import { ChevronsLeft, ChevronsRight } from 'react-feather'
 import ActionWindow from './components/Action-window'
 import { useEffect, useRef, useState } from 'react'
 const { ipcRenderer } = window.electron
+const device_size = {
+	width: window.screen.width,
+	height: window.screen.height
+}
 
 function App(): JSX.Element {
   const browserRef = useRef<Electron.WebviewTag>(null)
   const urlRef = useRef<HTMLInputElement>(null)
   const [showSidebar, setShowSidebar] = useState(true)
   const [isMaximized, setIsMaximized] = useState(false)
+  const [tabs, setTabs] = useState([
+	{
+		id: 1,
+		title: 'DockDockGo',
+		url:''
+	}
+  ]);
+  const [tabActive, setTabActive] = useState(1)
 
   const headleGoUrl = (): void => {
     const urlTest = new RegExp(/(\..*)/gi)
@@ -35,7 +47,6 @@ function App(): JSX.Element {
 
   const handleWindowMaxmized = (status): void => {
     setIsMaximized(status)
-    console.log('window', status)
   }
 
   useEffect(() => {
@@ -45,11 +56,18 @@ function App(): JSX.Element {
       browserRef.current.addEventListener('will-navigate', headleUpdateUrl)
     ipcRenderer.on('window-maximized', () => handleWindowMaxmized(true))
     ipcRenderer.on('window-unmaximized', () => handleWindowMaxmized(false))
+	
+	window.addEventListener('resize', () => {
+		setBrowser_size( () => {return {
+			width:	window.outerWidth,
+			height: window.outerHeight
+		}})
+		
+	});
   }, [])
-
+  
   const handleSidebar = (): void => {
     setShowSidebar(!showSidebar)
-    console.log('sidebar false')
   }
 
   return (
