@@ -17,7 +17,7 @@ function App(): JSX.Element {
     {
       id: 0,
       title: 'DockDockGo',
-      url: 'https://duckduckgo.com/?q=&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=h_&ia=web',
+      url: 'https://duckduckgo.com/?q=&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=beespace&ia=web',
       favicon: ''
     }
   ])
@@ -28,7 +28,7 @@ function App(): JSX.Element {
   const headleGoUrl = (id): void => {
     const urlTest = new RegExp(/(\..*)/gi)
     const urlTestHttp = new RegExp(/(http(s?):\/\/)/gi)
-    console.log(tabsWebViewRef)
+    console.log('tab ref', tabsWebViewRef)
     console.log(urlRef)
     if (urlRef.current != null && urlTest.test(urlRef.current.value)) {
       if (urlTestHttp.test(urlRef.current?.value)) {
@@ -41,7 +41,7 @@ function App(): JSX.Element {
     } else {
       if (tabsWebViewRef.current[id] != null)
         tabsWebViewRef.current[id].current.loadURL(
-          `https://duckduckgo.com/?q=${urlRef.current?.value}&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=h_&ia=web`
+          `https://duckduckgo.com/?q=${urlRef.current?.value}&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=beespace&ia=web`
         )
     }
   }
@@ -50,8 +50,9 @@ function App(): JSX.Element {
     if (urlRef.current != null)
       urlRef.current.value = tabsWebViewRef.current[tabActive].current.getURL()
     setTabs((old) => {
-      old[tabActive].title = tabsWebViewRef.current[tabActive].current.getTitle()
-      return [...old]
+      const newContent = old
+      newContent[tabActive].title = tabsWebViewRef.current[tabActive].current.getTitle()
+      return [...newContent]
     })
   }
 
@@ -90,6 +91,8 @@ function App(): JSX.Element {
             return [...old]
           })
         })
+
+        console.log('Algo: ', element.current)
       }
     })
     if (tabsWebViewRef.current[tabs.length - 1].current != null) {
@@ -142,17 +145,17 @@ function App(): JSX.Element {
             <Plus />
             Add new tab
           </button>
-          <div className="flex flex-col items-start gap-2 w-full overflow-x-auto bg-secondary-950 bg-opacity-5 p-2 rounded-lg">
+          <div className="flex flex-col items-start gap-2 w-full overflow-x-auto bg-secondary-950 p-2 rounded-lg">
             {tabs.map((tab, i) => {
               return (
                 <div key={i} className="flex gap-2 w-full">
                   <button
                     onClick={(): void => setTabActive(tab.id)}
-                    className={`${
+                    className={`px-3 py-2 rounded-md flex gap-1 flex-1 items-center relative border text-primary-50 ${
                       tabActive == tab.id
-                        ? 'bg-primary-50 bg-opacity-100 shadow-md'
-                        : 'bg-secondary-950 bg-opacity-30 text-primary-50 hover:text-secondary-950 hover:bg-primary-50 hover:bg-opacity-50'
-                    } px-3 py-2 rounded-lg flex gap-1 flex-1 items-center`}
+                        ? 'bg-secondary-500 shadow-md border-secondary-400'
+                        : 'bg-secondary-900 border-secondary-800 hover:border-secondary-500'
+                    }`}
                   >
                     <i>
                       {tab.favicon != null && tab.favicon != '' ? (
@@ -166,14 +169,20 @@ function App(): JSX.Element {
                         <Globe size={19} />
                       )}
                     </i>
-                    <span className="text-left line-clamp-1">{tab.title}</span>
+                    <span
+                      className={`text-left overflow-hidden whitespace-nowrap w-full max-w-44 relative after:w-16 after:h-full after:bg-opacity-30 after:absolute after:right-0 after:top-0 after:bg-transparent after:bg-gradient-to-r after:from-transparent ${
+                        tabActive == tab.id ? 'after:to-secondary-500' : 'after:to-secondary-900'
+                      }`}
+                    >
+                      {tab.title}
+                    </span>
                   </button>
                   <button
-                    className={`${
+                    className={`px-3 py-2 rounded-md flex gap-1 items-center relative border text-primary-50 ${
                       tabActive == tab.id
-                        ? 'bg-primary-50 bg-opacity-100'
-                        : 'bg-secondary-950 bg-opacity-30 text-primary-50 hover:text-secondary-950 hover:bg-primary-50 hover:bg-opacity-50'
-                    } px-3 py-2 rounded-lg`}
+                        ? 'bg-secondary-500 shadow-md border-secondary-400'
+                        : 'bg-secondary-900 border-secondary-800 hover:border-secondary-500'
+                    }`}
                   >
                     <X size={16} />
                   </button>
