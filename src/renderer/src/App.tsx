@@ -28,8 +28,8 @@ function App(): JSX.Element {
   const headleGoUrl = (id): void => {
     const urlTest = new RegExp(/(\..*)/gi)
     const urlTestHttp = new RegExp(/(http(s?):\/\/)/gi)
-    console.log('tab ref', tabsWebViewRef)
-    console.log(urlRef)
+    //console.log('tab ref', tabsWebViewRef)
+    //console.log(urlRef)
     if (urlRef.current != null && urlTest.test(urlRef.current.value)) {
       if (urlTestHttp.test(urlRef.current?.value)) {
         if (tabsWebViewRef.current[id].current != null)
@@ -47,13 +47,15 @@ function App(): JSX.Element {
   }
 
   const headleUpdateUrl = (event): void => {
-    if (urlRef.current != null)
-      urlRef.current.value = tabsWebViewRef.current[tabActive].current.getURL()
-    setTabs((old) => {
-      const newContent = old
-      newContent[tabActive].title = tabsWebViewRef.current[tabActive].current.getTitle()
-      return [...newContent]
-    })
+    if (event.target.dataset.tabId) {
+      const tabID = event.target.dataset.tabId
+      //console.log('TABID', event.target.dataset.tabId);
+      //console.log('TITLE', tabsWebViewRef.current[tabID].current.getTitle());
+      //console.log('TABVIEW', {tab: tabsWebViewRef.current[tabID].current});
+      if (urlRef.current != null) {
+        urlRef.current.value = tabsWebViewRef.current[tabID].current.getURL()
+      }
+    }
   }
 
   const handleWindowMaxmized = (status): void => {
@@ -72,6 +74,36 @@ function App(): JSX.Element {
         }
       ]
     })
+    setTabActive(tabs.length)
+  }
+
+  const headleUpdateTitleTab = (event): void => {
+    console.log('Update title', event.title)
+    if (event.target.dataset.tabId) {
+      const tabID = event.target.dataset.tabId
+      const tabtitle = event.title
+      setTabs((old) => {
+        old[tabID].title = tabtitle
+        return [...old]
+      })
+    }
+  }
+
+  // const heandleUpdateTab = (event): void => {
+  //   if (event.target.dataset.tabId) {
+  //     const tabID = event.target.dataset.tabId
+  //     setTabs((old) => {
+  //       old[tabID].title = tabsWebViewRef.current[tabID].current.getTitle()
+  //       return [...old]
+  //     })
+  //   }
+  // }
+
+  const handleSelecTab = (tab): void => {
+    setTabActive(tab.id)
+    if (urlRef.current != null) {
+      urlRef.current.value = tab.url
+    }
   }
 
   useEffect(() => {
@@ -80,36 +112,40 @@ function App(): JSX.Element {
   }, [])
 
   useEffect(() => {
-    console.log(tabsWebViewRef.current[0].current)
+    //console.log(tabsWebViewRef.current[0].current)
     tabsWebViewRef.current.map((element, i) => {
-      if (element.current != null) {
+      if (element.current != null && element.current.dataset.eventsAdded == 'false') {
+        //console.log(element.current.dataset.eventsAdded);
         element.current.addEventListener('did-navigate-in-page', headleUpdateUrl)
         element.current.addEventListener('will-navigate', headleUpdateUrl)
+        element.current.addEventListener('did-finish-load', headleUpdateUrl)
+        element.current.addEventListener('page-title-updated', headleUpdateTitleTab)
         element.current.addEventListener('page-favicon-updated', (fav): void => {
           setTabs((old) => {
-            old[tabActive].favicon = fav.favicons[0]
+            //console.log("Old tab", old)
+            old[i].favicon = fav.favicons[0]
             return [...old]
           })
         })
-
-        console.log('Algo: ', element.current)
+        element.current.dataset.eventsAdded = 'true'
+        //console.log('Algo: ', element.current)
       }
     })
-    if (tabsWebViewRef.current[tabs.length - 1].current != null) {
-      tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
-        'did-navigate-in-page',
-        headleUpdateUrl
-      )
-      tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
-        'will-navigate',
-        headleUpdateUrl
-      )
-      tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
-        'did-finish-load',
-        headleUpdateUrl
-      )
-      tabsWebViewRef.current[tabs.length - 1].current.addEventListener('dom-ready', headleUpdateUrl)
-    }
+    //if (tabsWebViewRef.current[tabs.length - 1].current != null) {
+    //  tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
+    //    'did-navigate-in-page',
+    //    headleUpdateUrl
+    //  )
+    //  tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
+    //    'will-navigate',
+    //    headleUpdateUrl
+    //  )
+    //  tabsWebViewRef.current[tabs.length - 1].current.addEventListener(
+    //    'did-finish-load',
+    //    headleUpdateUrl
+    //  )
+    //  tabsWebViewRef.current[tabs.length - 1].current.addEventListener('dom-ready', headleUpdateUrl)
+    //}
   }, [tabs])
 
   const handleSidebar = (): void => {
@@ -150,7 +186,7 @@ function App(): JSX.Element {
               return (
                 <div key={i} className="flex gap-2 w-full">
                   <button
-                    onClick={(): void => setTabActive(tab.id)}
+                    onClick={(): void => handleSelecTab(tab)}
                     className={`px-3 py-2 rounded-md flex gap-1 flex-1 items-center relative border text-primary-50 ${
                       tabActive == tab.id
                         ? 'bg-secondary-500 shadow-md border-secondary-400'
@@ -201,6 +237,8 @@ function App(): JSX.Element {
               ref={tabsWebViewRef.current[i]}
               id={`tab${tab.id}`}
               src={tab.url}
+              data-tab-id={i}
+              data-events-added={false}
               className={`flex-1 rounded-lg nodragable ${tabActive == tab.id ? 'flex' : 'hidden'}`}
             ></webview>
           )

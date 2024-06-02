@@ -76,4 +76,4 @@ $ npm run build:linux
 ## Authors
 
 - [@eulukasthyago](https://www.github.com/eulukasthyago)
-- [@webcolmeia](https://www.github.com/webcolmeia)
+- [@ltcodedev](https://www.github.com/ltcodedev)
