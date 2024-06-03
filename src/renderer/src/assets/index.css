@@ -12,13 +12,7 @@ body,
 
 
 @layer components {
-  .button_actions button {
-    border-radius: theme('borderRadius.full');
-    background-color: theme('backgroundColor.primary.50');
-    width: theme('width.4');
-    height: theme('height.4');
-    box-shadow: theme('boxShadow.md');
-  }
+
 }
 
 
@@ -32,4 +26,8 @@ body,
 
 .dragable {
   -webkit-app-region: drag;
+}
+
+*{
+  user-select: none;
 }

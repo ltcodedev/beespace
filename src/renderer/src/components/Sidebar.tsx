@@ -14,7 +14,7 @@ const ActionWindow = (): JSX.Element => {
   }
 
   return (
-    <div className="button_actions flex gap-1 mb-2">
+    <div className="button_actions flex gap-1 mb-2 bg-slate-300">
       <button
         onClick={handleWindowClose}
         className="button_close hover:bg-danger-500 nodragable"
@@ -27,6 +27,10 @@ const ActionWindow = (): JSX.Element => {
         onClick={handleWindowMinimize}
         className="button_minimize hover:bg-success-400 nodragable"
       ></button>
+
+      <div>
+        Web
+      </div>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { ChevronsLeft, ChevronsRight, Globe, Plus, X } from 'react-feather'
+import { ChevronLeft, ChevronRight, Globe, Plus, X } from 'react-feather'
 import ActionWindow from './components/Action-window'
 import { MutableRefObject, createRef, useEffect, useRef, useState } from 'react'
 const { ipcRenderer } = window.electron
@@ -17,7 +17,7 @@ function App(): JSX.Element {
     {
       id: 0,
       title: 'DockDockGo',
-      url: 'https://duckduckgo.com/?q=&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=beespace&ia=web',
+      url: 'https://duckduckgo.com/?q=&t=beespace&ia=web',
       favicon: ''
     }
   ])
@@ -41,7 +41,7 @@ function App(): JSX.Element {
     } else {
       if (tabsWebViewRef.current[id] != null)
         tabsWebViewRef.current[id].current.loadURL(
-          `https://duckduckgo.com/?q=${urlRef.current?.value}&kae=d&kbc=1&kl=br-pt&k7=2a2a2a&kj=ffcc66&k18=1&k8=aaaaaa&kaa=ffcc66&t=beespace&ia=web`
+          `https://duckduckgo.com/?q=${urlRef.current?.value}&t=beespace&ia=web`
         )
     }
   }
@@ -54,6 +54,10 @@ function App(): JSX.Element {
       //console.log('TABVIEW', {tab: tabsWebViewRef.current[tabID].current});
       if (urlRef.current != null) {
         urlRef.current.value = tabsWebViewRef.current[tabID].current.getURL()
+        setTabs((old) => {
+          old[tabID].url = tabsWebViewRef.current[tabID].current.getURL()
+          return [...old]
+        })
       }
     }
   }
@@ -68,8 +72,8 @@ function App(): JSX.Element {
         ...old,
         {
           id: old.length,
-          title: 'Pagina em branco' + (old.length + 1),
-          url: 'about:blank',
+          title: 'DockDockGo',
+          url: 'https://duckduckgo.com/?q=&t=beespace&ia=web',
           favicon: ''
         }
       ]
@@ -103,6 +107,44 @@ function App(): JSX.Element {
     setTabActive(tab.id)
     if (urlRef.current != null) {
       urlRef.current.value = tab.url
+    }
+  }
+
+  const handleBack = (): void => {
+    if (tabsWebViewRef.current[tabActive].current != null) {
+      tabsWebViewRef.current[tabActive].current.goBack()
+    }
+  }
+
+  const handleForward = (): void => {
+    if (tabsWebViewRef.current[tabActive].current != null) {
+      tabsWebViewRef.current[tabActive].current.goForward()
+    }
+  }
+
+  const handleReloadPage = (): void => {
+    if (tabsWebViewRef.current[tabActive].current != null) {
+      tabsWebViewRef.current[tabActive].current.reload()
+    }
+  }
+
+  const handleClosetab = (event): void => {
+    if (event.target.dataset.tabId) {
+      const tabID = event.target.dataset.tabId
+      if (tabs.length <= 1) {
+        setTabs([
+          {
+            id: 0,
+            title: 'DockDockGo',
+            url: 'https://duckduckgo.com/?q=&t=beespace&ia=web',
+            favicon: ''
+          }
+        ])
+      } else {
+        const removetab = tabs
+        removetab.splice(tabID, 1)
+        setTabs([...removetab])
+      }
     }
   }
 
@@ -154,82 +196,93 @@ function App(): JSX.Element {
 
   return (
     <div
-      className={`appcontainer flex flex-1 bg-gradient-to-br from-primary-300 to-primary-800 transition-all first-letter duration-300 ${
+      className={`appcontainer flex flex-1 bg-gradient-to-br from-primary-300 p-2 to-primary-800 transition-all first-letter duration-300 ${
         isMaximized ? 'rounded-none' : 'rounded-lg'
-      }`}
+      }${showSidebar ? ' gap-2' : 'gap-0'}`}
     >
       <div
-        className={`nodragable flex flex-col transition-all m-2 mr-0 duration-300 overflow-visible ease-in-out visible ${
-          showSidebar == true ? 'w-[300px]' : 'w-[0px] invisible overflow-hidden'
+        className={`nodragable transition-all duration-300 ease-in-out ${
+          showSidebar ? 'w-[300px] overflow-visible visible' : 'w-0 invisible overflow-hidden'
         }`}
       >
-        <div className="header_sidebar dragable mb-3 mr-2 min-w-[280px]">
-          <ActionWindow />
-          <div className="url_window w-full nodragable">
-            <input
-              type="text"
-              className="rounded-full p-2 px-4 text-secondary-600 bg-primary-50 bg-opacity-80 shadow-md w-full"
-              ref={urlRef}
-              onKeyDown={(e): void => {
-                e.key == 'Enter' && headleGoUrl(tabActive)
-              }}
+        <div
+          className={`nodragable flex flex-col transition-all duration-300 overflow-visible ease-in-out visible w-[300px]`}
+        >
+          <div className="header_sidebar dragable mb-3 mr-2 w-full">
+            <ActionWindow
+              sidebarEvent={handleSidebar}
+              reloadEvent={handleReloadPage}
+              backEvent={handleBack}
+              forwardEvent={handleForward}
             />
+            <div className="url_window w-full nodragable">
+              <input
+                type="text"
+                className="rounded-full p-2 px-4 text-secondary-600 bg-primary-100 shadow-md w-full"
+                ref={urlRef}
+                onKeyDown={(e): void => {
+                  e.key == 'Enter' && headleGoUrl(tabActive)
+                }}
+              />
+            </div>
           </div>
-        </div>
-        <div className="content_sidebar flex flex-1 flex-col items-start mr-2 min-w-[280px]">
-          <button onClick={handleAddNewTab} className="px-3 py-2 flex gap-2">
-            <Plus />
-            Add new tab
-          </button>
-          <div className="flex flex-col items-start gap-2 w-full overflow-x-auto bg-secondary-950 p-2 rounded-lg">
-            {tabs.map((tab, i) => {
-              return (
-                <div key={i} className="flex gap-2 w-full">
-                  <button
-                    onClick={(): void => handleSelecTab(tab)}
-                    className={`px-3 py-2 rounded-md flex gap-1 flex-1 items-center relative border text-primary-50 ${
-                      tabActive == tab.id
-                        ? 'bg-secondary-500 shadow-md border-secondary-400'
-                        : 'bg-secondary-900 border-secondary-800 hover:border-secondary-500'
-                    }`}
-                  >
-                    <i>
-                      {tab.favicon != null && tab.favicon != '' ? (
-                        <img
-                          src={`${tab.favicon}`}
-                          className="min-w-[16px] min-h-[16px] max-w-[16px] max-h-[16px]"
-                          width="32px"
-                          height="32px"
-                        />
-                      ) : (
-                        <Globe size={19} />
-                      )}
-                    </i>
-                    <span
-                      className={`text-left overflow-hidden whitespace-nowrap w-full max-w-44 relative after:w-16 after:h-full after:bg-opacity-30 after:absolute after:right-0 after:top-0 after:bg-transparent after:bg-gradient-to-r after:from-transparent ${
-                        tabActive == tab.id ? 'after:to-secondary-500' : 'after:to-secondary-900'
+          <div className="content_sidebar flex flex-1 flex-col items-start w-full">
+            <button onClick={handleAddNewTab} className="px-0 py-2 flex gap-2">
+              <Plus />
+              Add new tab
+            </button>
+            <div className="flex flex-col items-start gap-2 w-full overflow-x-auto bg-primary-100 p-2 rounded-lg">
+              {tabs.map((tab, i) => {
+                return (
+                  <div key={i} className="flex gap-2 w-full" data-tab-id={i}>
+                    <button
+                      onClick={(): void => handleSelecTab(tab)}
+                      className={`px-3 py-2 rounded-md flex gap-1 flex-1 items-center relative group ${
+                        tabActive == tab.id
+                          ? 'bg-secondary-50 shadow-md text-secondary-900'
+                          : 'bg-secondary-50 shadow-sm hover:shadow text-secondary-400 hover:text-secondary-500'
                       }`}
                     >
-                      {tab.title}
-                    </span>
-                  </button>
-                  <button
-                    className={`px-3 py-2 rounded-md flex gap-1 items-center relative border text-primary-50 ${
-                      tabActive == tab.id
-                        ? 'bg-secondary-500 shadow-md border-secondary-400'
-                        : 'bg-secondary-900 border-secondary-800 hover:border-secondary-500'
-                    }`}
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )
-            })}
+                      <i>
+                        {tab.favicon != null && tab.favicon != '' ? (
+                          <img
+                            src={`${tab.favicon}`}
+                            className="min-w-[16px] min-h-[16px] max-w-[16px] max-h-[16px]"
+                            width="32px"
+                            height="32px"
+                          />
+                        ) : (
+                          <Globe size={19} />
+                        )}
+                      </i>
+                      <span
+                        className={`text-left overflow-hidden whitespace-nowrap w-full max-w-44 relative after:w-16 after:h-full after:bg-opacity-30 after:absolute after:right-0 after:top-0 after:bg-transparent after:bg-gradient-to-r after:from-transparent ${
+                          tabActive == tab.id ? 'after:to-secondary-50' : 'after:to-secondary-50'
+                        }`}
+                      >
+                        {tab.title}
+                      </span>
+                    </button>
+                    <button
+                      className={`px-3 py-2 rounded-md flex gap-1 items-center relative ${
+                        tabActive == tab.id
+                          ? 'bg-secondary-50 shadow-md text-secondary-900'
+                          : 'bg-secondary-50 shadow-sm hover:shadow text-secondary-400 hover:text-secondary-500'
+                      }`}
+                      data-tab-id={i}
+                      onClick={handleClosetab}
+                    >
+                      <X size={16} className="pointer-events-none" />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
           </div>
+          <div className="footer_sidebar"></div>
         </div>
-        <div className="footer_sidebar"></div>
       </div>
-      <div className="basis-full bg-primary-50 m-2 ml-0 rounded-lg shadow-md flex overflow-hidden">
+      <div className="basis-full bg-white rounded-lg shadow-md flex overflow-hidden z-10">
         {tabs.map((tab, i) => {
           return (
             <webview
@@ -246,16 +299,16 @@ function App(): JSX.Element {
       </div>
       <button
         onClick={handleSidebar}
-        className={`nodragable bg-primary-50 w-10 h-10 flex justify-center items-center shadow-md absolute transition-all delay-75 ${
+        className={`nodragable bg-primary-100 w-10 h-10 flex justify-center items-center shadow-md absolute transition-all delay-75 z-20 ${
           showSidebar == true
             ? 'rounded-lg bottom-2 left-2'
-            : 'bg-opacity-30 hover:bg-opacity-100 rounded-full bottom-5 left-5'
+            : 'bg-secondary-50 bg-opacity-30 hover:bg-opacity-100 rounded-full bottom-5 left-5'
         }`}
       >
         {showSidebar ? (
-          <ChevronsLeft className="text-secondary-700" />
+          <ChevronLeft className="text-secondary-700" />
         ) : (
-          <ChevronsRight className="text-secondary-700" />
+          <ChevronRight className="text-secondary-700" />
         )}
       </button>
     </div>
